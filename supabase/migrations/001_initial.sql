@@ -63,7 +63,7 @@ create table public.provenance_records (
   block_number bigint,
   block_timestamp timestamptz,
   contract_address text,
-  network_name text default 'polygon-mumbai',
+  network_name text default 'polygon-amoy',
   on_chain_record_id bigint,
   verification_status text check (verification_status in ('pending', 'confirmed', 'failed')) default 'pending',
   created_at timestamptz default now()
@@ -111,7 +111,7 @@ begin
   values (new.id, new.raw_user_meta_data->>'full_name');
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 create trigger on_auth_user_created
   after insert on auth.users
