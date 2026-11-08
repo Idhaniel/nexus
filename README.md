@@ -135,7 +135,7 @@ pnpm chain:test    # Hardhat — ProvenanceLedger tests
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key |
    | `SUPABASE_SERVICE_ROLE_KEY` | **Server only** — never expose to the client |
    | `NEXT_PUBLIC_CONTRACT_ADDRESS` | Deployed `ProvenanceLedger` address |
-   | `POLYGON_AMOY_RPC_URL` | Amoy RPC, e.g. `https://rpc-amoy.polygon.technology` (or your provider) |
+   | `POLYGON_AMOY_RPC_URL` | Amoy RPC, e.g. `https://polygon-amoy.drpc.org` (or your provider) |
    | `RECORDER_PRIVATE_KEY` | **Server only** — wallet authorized to call `recordProvenance` |
    | `NEXT_PUBLIC_APP_URL` | Your Vercel URL, e.g. `https://your-app.vercel.app` |
    | `NEXT_PUBLIC_APP_NAME` | Optional display name |

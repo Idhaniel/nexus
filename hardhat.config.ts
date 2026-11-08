@@ -22,7 +22,7 @@ const config: HardhatUserConfig = {
     },
     amoy: {
       url:
-        process.env.POLYGON_AMOY_RPC_URL || "https://rpc-amoy.polygon.technology",
+        process.env.POLYGON_AMOY_RPC_URL || "https://polygon-amoy.drpc.org",
       accounts: process.env.DEPLOYER_PRIVATE_KEY
         ? [process.env.DEPLOYER_PRIVATE_KEY]
         : [],
