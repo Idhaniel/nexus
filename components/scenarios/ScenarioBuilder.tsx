@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,12 @@ export function ScenarioBuilder() {
   } | null>(null);
   const [scenarioId, setScenarioId] = useState<string | null>(null);
   const [resultId, setResultId] = useState<string | null>(null);
+  const [chain, setChain] = useState<{
+    status: "confirmed" | "pending" | "failed";
+    txHash: string | null;
+    recordId: number;
+    alreadyRecorded?: boolean;
+  } | null>(null);
 
   const supabase = useMemo(() => createClient(), []);
 
@@ -80,6 +87,9 @@ export function ScenarioBuilder() {
     setLoading(true);
     setResult(null);
     setHashes(null);
+    setChain(null);
+    setScenarioId(null);
+    setResultId(null);
     try {
       if (!supabase) {
         setError(
@@ -172,6 +182,12 @@ export function ScenarioBuilder() {
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || "Recording failed");
+      setChain({
+        status: j.status,
+        txHash: j.txHash ?? null,
+        recordId: j.recordId ?? 0,
+        alreadyRecorded: j.alreadyRecorded,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Recording failed");
     } finally {
@@ -332,7 +348,51 @@ export function ScenarioBuilder() {
             )}
           </Button>
 
-          {result && hashes && resultId && (
+          {result && scenarioId && resultId && (
+            <p className="rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-primary" role="status">
+              Scenario saved.{" "}
+              <Link href={`/scenarios/${scenarioId}`} className="underline underline-offset-2">
+                View it
+              </Link>
+            </p>
+          )}
+
+          {chain && (
+            <div
+              role="status"
+              className={
+                chain.status === "confirmed"
+                  ? "space-y-1 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-primary"
+                  : "space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-300"
+              }
+            >
+              {chain.status === "confirmed" ? (
+                <>
+                  <p className="font-medium">
+                    {chain.alreadyRecorded ? "Already recorded on-chain" : "Recorded on-chain"}
+                    {chain.recordId ? ` · record #${chain.recordId}` : ""}
+                  </p>
+                  {chain.txHash && (
+                    <a
+                      href={`https://amoy.polygonscan.com/tx/${chain.txHash}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="break-all font-mono text-xs underline underline-offset-2"
+                    >
+                      View transaction {chain.txHash.slice(0, 10)}…{chain.txHash.slice(-6)}
+                    </a>
+                  )}
+                </>
+              ) : (
+                <p>
+                  Hashes saved, but the blockchain write didn&apos;t go through. It is marked
+                  pending in the audit trail. You can try again.
+                </p>
+              )}
+            </div>
+          )}
+
+          {result && hashes && resultId && chain?.status !== "confirmed" && (
             <Button
               type="button"
               variant="secondary"

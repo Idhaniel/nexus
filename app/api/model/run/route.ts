@@ -8,6 +8,7 @@ import {
 } from "@/lib/blockchain/hash";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { validateScenarioParameters } from "@/lib/validation/scenario";
+import { getRequestUser, userOwnsScenario } from "@/lib/supabase/auth";
 
 export async function POST(request: Request) {
   try {
@@ -61,6 +62,14 @@ export async function POST(request: Request) {
         combinedHash,
         saved: false,
       });
+    }
+
+    const user = await getRequestUser();
+    if (!user) {
+      return NextResponse.json({ error: "Please sign in to save results." }, { status: 401 });
+    }
+    if (!(await userOwnsScenario(user.id, scenarioId))) {
+      return NextResponse.json({ error: "Scenario not found" }, { status: 404 });
     }
 
     const supabase = createServiceRoleClient();

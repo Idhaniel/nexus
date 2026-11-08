@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSupabaseUser } from "@/lib/supabase/useUser";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
@@ -15,6 +16,7 @@ const links = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const { user } = useSupabaseUser();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -47,9 +49,19 @@ export function Navbar() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/auth">Sign in</Link>
-          </Button>
+          {user ? (
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/auth" title="Account">
+                <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-primary" />
+                <span className="hidden max-w-[160px] truncate sm:inline">{user.email}</span>
+                <span className="sm:hidden">Account</span>
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/auth">Sign in</Link>
+            </Button>
+          )}
           <Button size="sm" asChild>
             <Link href="/scenarios/new">New scenario</Link>
           </Button>
