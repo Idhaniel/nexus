@@ -69,12 +69,12 @@ contract ProvenanceLedger {
      * @dev Record a new scenario run provenance entry.
      */
     function recordProvenance(
-        string calldata scenarioId,
-        string calldata inputHash,
-        string calldata outputHash,
-        string calldata parametersHash,
-        string calldata modelVersionHash,
-        string calldata combinedHash
+        string memory scenarioId,
+        string memory inputHash,
+        string memory outputHash,
+        string memory parametersHash,
+        string memory modelVersionHash,
+        string memory combinedHash
     ) external onlyAuthorized returns (uint256) {
         require(bytes(scenarioId).length > 0, "scenarioId required");
         require(bytes(combinedHash).length == 64, "Invalid SHA-256 hash length");
@@ -82,18 +82,18 @@ contract ProvenanceLedger {
         recordCount++;
         uint256 newId = recordCount;
 
-        records[newId] = ProvenanceRecord({
-            id: newId,
-            scenarioId: scenarioId,
-            inputHash: inputHash,
-            outputHash: outputHash,
-            parametersHash: parametersHash,
-            modelVersionHash: modelVersionHash,
-            combinedHash: combinedHash,
-            recorder: msg.sender,
-            timestamp: block.timestamp,
-            verified: false
-        });
+        // Assign fields one at a time (instead of a struct literal) to stay
+        // within the EVM's 16-slot stack limit ("Stack too deep").
+        ProvenanceRecord storage r = records[newId];
+        r.id = newId;
+        r.scenarioId = scenarioId;
+        r.inputHash = inputHash;
+        r.outputHash = outputHash;
+        r.parametersHash = parametersHash;
+        r.modelVersionHash = modelVersionHash;
+        r.combinedHash = combinedHash;
+        r.recorder = msg.sender;
+        r.timestamp = block.timestamp;
 
         scenarioRecords[scenarioId].push(newId);
 
